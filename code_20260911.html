@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>实时位置追踪测试</title>
+</head>
+<body>
+<button id="startBtn">开始实时追踪</button>
+<button id="stopBtn">停止追踪</button>
+<p>当前纬度：<span id="lat">--</span></p>
+<p>当前经度：<span id="lng">--</span></p>
+<p>状态：<span id="status">未启动</span></p>
+
+<script>
+let watchId = null;
+const latDom = document.getElementById('lat');
+const lngDom = document.getElementById('lng');
+const statusDom = document.getElementById('status');
+
+document.getElementById('startBtn').onclick = function(){
+  if(!navigator.geolocation){
+    statusDom.innerText="浏览器不支持定位API";
+    return;
+  }
+  statusDom.innerText="正在监听位置...走动试试";
+  watchId = navigator.geolocation.watchPosition(
+    function(pos){
+      latDom.innerText = pos.coords.latitude;
+      lngDom.innerText = pos.coords.longitude;
+    },
+    function(err){
+      statusDom.innerText=`错误：${err.code}, ${err.message}`;
+    },
+    {
+      enableHighAccuracy:true,
+      timeout:8000,
+      maximumAge:0
+    }
+  )
+}
+
+document.getElementById('stopBtn').onclick = function(){
+  if(watchId){
+    navigator.geolocation.clearWatch(watchId);
+    watchId=null;
+    statusDom.innerText="已停止追踪";
+  }
+}
+</script>
+</body>
+</html>
